@@ -7,7 +7,7 @@
                 <div class="flex justify-content-between mb-3">
                     <div>
                         <span class="block text-500 font-medium mb-3">Most successful member</span>
-                        <div class="text-900 font-medium text-xl">152 points</div>
+                        <div class="text-900 font-medium text-xl">{{ bestMember }}</div>
                     </div>
                    
                 </div>
@@ -44,11 +44,12 @@
 </template>
 <script setup lang="ts">
 // @ts-ignore
-import { getBestTeam, getBestLeader } from "@/utils/GetCalls.ts";
+import { getBestTeam, getBestLeader, getBestMember } from "@/utils/GetCalls.ts";
 import { onMounted, ref } from "vue";
 
 const bestTeam = ref("(loading...)");
 const bestLeader = ref("(loading...)");
+const bestMember = ref("(loading...)");
 
 onMounted(() => {
     getBestTeam().then((res: any) => {
@@ -62,7 +63,14 @@ onMounted(() => {
         return res.json();
     }).then((result: JSON) => {
         // @ts-ignore
-        bestLeader.value = `${result.person_name} with ${result.sum_points} points`;
+        bestLeader.value = `${result.person_name} with ${result.sum_points} points (project count: ${result.project_count})`;
+    });
+
+    getBestMember().then((res: any) => {
+        return res.json();
+    }).then((result: JSON) => {
+        // @ts-ignore
+        bestMember.value = `${result.person_name} with ${result.sum_points} points (project count: ${result.project_count}, team count: ${result.team_count})`;
     });
 });
 

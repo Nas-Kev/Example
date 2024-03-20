@@ -17,3 +17,13 @@ export function getBestLeader() {
         }
     )
 }
+
+
+export function getBestMember() {
+    return fetch(
+        BASE_URL + "max_member",
+        {
+            method: "GET"
+        }
+    )
+}

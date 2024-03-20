@@ -144,9 +144,10 @@ order by total_points_sum desc
 -- FIND BEST TEAM MEMBER
 
 -- VIEW total_points_per_member
-select (select person.id as "person_id",
-team.id as "team_id",
-project.id as "project_id",
+select person.id as "person_id",
+concat(person.first_name, ' ', person.last_name) as person_name,
+count(distinct team.id) as "team_count",
+count(project.id) as "project_count",
 sum(award.points_per_member) as "sum_points"
 from person 
 inner join team_member tm on tm.person_id = person.id 
@@ -155,7 +156,7 @@ inner join project on project.team_id = team.id
 inner join award on award.id = project.award_id
 
 group by person_id
-order by person_id) total_points_per_member;
+order by person_id;
 
 SELECT * FROM `total_points_per_member` t WHERE t.sum_points = (select max(sum_points) from total_points_per_member);
 
@@ -164,7 +165,8 @@ SELECT * FROM `total_points_per_member` t WHERE t.sum_points = (select max(sum_p
 select team.id as team_id, project.id as project_id, 
 team.leader_person_id, 
 sum(award.points_per_leader) as sum_points,
-concat(person.first_name, ' ', person.last_name) as person_name
+concat(person.first_name, ' ', person.last_name) as person_name,
+count(project.id) as "project_count"
 from team 
 inner join project on project.team_id = team.id 
 inner join award on award.id = project.award_id

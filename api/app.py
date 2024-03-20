@@ -22,6 +22,7 @@ from sqlalchemy import (
     func,
     create_engine,
 )
+from models import PointsPerTeamView, PointsPerLeader, Base, PointsPerMember
 
 
 app = Flask(__name__)
@@ -37,40 +38,7 @@ engine = create_engine(
 
 
 
-class Base(DeclarativeBase):
-    pass
 
-
-class Person(Base):
-    __tablename__ = "person"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str]
-    last_name: Mapped[str]
-
-
-class Team(Base):
-    __tablename__ = "team"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    leader_person_id: Mapped[int] = mapped_column(ForeignKey(Person.id))
-
-class PointsPerTeamView(Base):
-    __tablename__ = "total_points_per_team"
-
-    team_id: Mapped[int] = mapped_column(primary_key=True)
-    total_points_sum: Mapped[str]
-
-    def __repr__(self) -> str:
-        return f"PointsPerTeamView(team_id={self.team_id}, total_points_sum={self.total_points_sum})"
-
-
-class PointsPerLeader(Base):
-    __tablename__ = "total_points_per_leader"
-
-    leader_person_id: Mapped[int] = mapped_column(primary_key=True)
-    sum_points: Mapped[int]
-    person_name: Mapped[str]
 
 
 
@@ -110,6 +78,25 @@ def max_leader():
     return jsonify({
         "sum_points": row[0].sum_points,
         "leader_person_id": row[0].leader_person_id,
-        "person_name": row[0].person_name
+        "person_name": row[0].person_name,
+        "project_count": row[0].project_count
         })
 
+
+@app.route("/max_member")
+def max_member():
+    print("GET request max_member")
+    
+    statement = select(PointsPerMember).where(PointsPerMember.sum_points == select(func.max(PointsPerMember.sum_points)).subquery())
+    session = Session(engine)
+    row = session.execute(statement).first()
+    session.close()
+    print(row)
+    print(row[0])
+    return jsonify({
+        "sum_points": row[0].sum_points,
+        "person_id": row[0].person_id,
+        "person_name": row[0].person_name,
+        "project_count": row[0].project_count,
+        "team_count": row[0].team_count
+        })
