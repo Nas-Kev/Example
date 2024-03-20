@@ -163,8 +163,10 @@ SELECT * FROM `total_points_per_member` t WHERE t.sum_points = (select max(sum_p
 
 select team.id as team_id, project.id as project_id, 
 team.leader_person_id, 
-sum(award.points_per_leader)
+sum(award.points_per_leader) as sum_points,
+concat(person.first_name, ' ', person.last_name) as person_name
 from team 
 inner join project on project.team_id = team.id 
 inner join award on award.id = project.award_id
+inner join person on person.id = team.leader_person_id
 group by team.leader_person_id
